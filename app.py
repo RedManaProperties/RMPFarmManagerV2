@@ -3,67 +3,71 @@ import pandas as pd
 import io
 
 st.set_page_config(page_title="Farm Management App", layout="wide")
-st.title("🌾 Farm Management Dashboard")
+st.title("🌾 Farm Management Dashboard (Editable)")
 
-st.markdown("Use this app to manage your farm activities without saving data to a server. Upload or download the entire database as a CSV.")
+st.markdown("""
+Manage your farm records directly in an editable table.
+- Upload a `.csv` to get started or work from a blank slate
+- All edits stay local until you download the updated file
+""")
 
-# Define the CSV schema
-COLUMNS = [
-    "Crop",
-    "Planting Date",
-    "Growth Stage",
-    "Nutrient Level (NPK)",
-    "Water Used (gallons)",
-    "Notes"
-]
+# Define the expected column names and types
+COLUMNS = {
+    "Crop": str,
+    "Planting Date": str,
+    "Growth Stage": str,
+    "Nutrient Level (NPK)": str,
+    "Water Used (gallons)": float,
+    "Notes": str
+}
 
-# Load CSV
-uploaded_file = st.file_uploader("Upload existing farm data (.csv)", type=["csv"])
+GROWTH_STAGES = ["Seed", "Sprout", "Vegetative", "Flowering", "Harvest"]
 
+# Upload section
+uploaded_file = st.file_uploader("Upload existing CSV (optional)", type=["csv"])
 if uploaded_file:
     df = pd.read_csv(uploaded_file)
-    if set(COLUMNS).issubset(df.columns):
+    if set(COLUMNS.keys()).issubset(df.columns):
         st.success("CSV loaded successfully.")
+        df = df[list(COLUMNS.keys())].astype(COLUMNS)
     else:
-        st.error("Uploaded CSV is missing required columns.")
-        df = pd.DataFrame(columns=COLUMNS)
+        st.warning("CSV missing required columns. Starting with a blank table.")
+        df = pd.DataFrame(columns=COLUMNS.keys())
 else:
-    df = pd.DataFrame(columns=COLUMNS)
+    df = pd.DataFrame(columns=COLUMNS.keys())
 
-# Add new entry
-with st.expander("➕ Add New Crop Entry"):
-    with st.form("new_entry"):
-        crop = st.text_input("Crop")
-        planting_date = st.date_input("Planting Date")
-        growth_stage = st.selectbox("Growth Stage", ["Seed", "Sprout", "Vegetative", "Flowering", "Harvest"])
-        nutrients = st.text_input("Nutrient Level (e.g., 10-10-10)")
-        water_used = st.number_input("Water Used (gallons)", min_value=0.0, step=0.1)
-        notes = st.text_area("Notes", height=100)
-        submitted = st.form_submit_button("Add Entry")
+# Display editable data editor
+st.subheader("📋 Edit Farm Records")
+edited_df = st.data_editor(
+    df,
+    column_config={
+        "Growth Stage": st.column_config.SelectboxColumn(
+            "Growth Stage",
+            help="Current growth stage of the crop",
+            options=GROWTH_STAGES
+        ),
+        "Water Used (gallons)": st.column_config.NumberColumn(
+            "Water Used (gallons)",
+            min_value=0.0,
+            step=0.1,
+            format="%.1f"
+        ),
+        "Planting Date": st.column_config.TextColumn(
+            "Planting Date (YYYY-MM-DD)",
+            help="Format as YYYY-MM-DD"
+        )
+    },
+    num_rows="dynamic",  # allows adding new rows
+    use_container_width=True
+)
 
-        if submitted:
-            new_data = {
-                "Crop": crop,
-                "Planting Date": planting_date.strftime("%Y-%m-%d"),
-                "Growth Stage": growth_stage,
-                "Nutrient Level (NPK)": nutrients,
-                "Water Used (gallons)": water_used,
-                "Notes": notes
-            }
-            df = pd.concat([df, pd.DataFrame([new_data])], ignore_index=True)
-            st.success("Entry added successfully.")
-
-# Show current table
-st.subheader("📋 Current Farm Data")
-st.dataframe(df, use_container_width=True)
-
-# Export CSV
-st.subheader("⬇️ Download Data")
+# Download section
+st.subheader("⬇️ Export Updated Data")
 csv_buffer = io.StringIO()
-df.to_csv(csv_buffer, index=False)
+edited_df.to_csv(csv_buffer, index=False)
 st.download_button(
-    label="Download as CSV",
+    label="Download Edited CSV",
     data=csv_buffer.getvalue(),
-    file_name="farm_data.csv",
+    file_name="updated_farm_data.csv",
     mime="text/csv"
 )
