@@ -1,9 +1,11 @@
 # RMPFarmManagerV2
 Version 2 of the Red Mana Properties Farm Manager
 
-The new improved version of the Farm Manager provides a web interface, and the ability to import and export data.
+The new improved version of the Farm Manager provides a Steamlit web interface, and the ability to import and export data.
 
-A live version is available for free at https://rmpfarmmanagerv2.streamlit.app/
+This app has only been tested with Python 3.13. Requirements are in requirements.txt
+
+A live version is available for free at https://rmpfarmmanagerv2.streamlit.app/ without install.
 
 NOTE: You must import your database each session, and export when you're finished. Unsaved changes will not be retained.
 
