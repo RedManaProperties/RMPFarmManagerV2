@@ -22,9 +22,9 @@ OR Run locally:
 Make sure you have Python installed (3.9 or higher recommended). Then:
 
 bash
-Copy
-Edit
+
 pip install -r requirements.txt
+
 streamlit run app.py
 
 2. 📥 Import Existing Data (Optional)
