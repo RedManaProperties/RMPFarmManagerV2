@@ -52,7 +52,11 @@ if location:
     if suggestions:
         st.markdown("**Suggestions:** " + ", ".join(suggestions))
 
-filtered_by_location = df[df["Location"] == location] if location else df
+if location and location in existing_locations:
+    filtered_by_location = df[df["Location"] == location]
+else:
+    filtered_by_location = df
+
 existing_crops = sorted(filtered_by_location["Crop"].dropna().unique())
 
 crop = st.text_input("Crop", placeholder="Type new or match existing")
