@@ -27,13 +27,8 @@ COLUMNS = {
 GROWTH_STAGES = ["Seed", "Sprout", "Vegetative", "Flowering", "Harvest"]
 STATUS_OPTIONS = ["Active", "Historical"]
 
-# IMPORT / EXPORT BUTTONS AT THE TOP
-col1, col2 = st.columns(2)
-with col1:
-    uploaded_file = st.file_uploader("📥 Import CSV", type=["csv"])
-
-with col2:
-    export_buffer = io.StringIO()  # This will be populated after df is defined
+# IMPORT BUTTON
+uploaded_file = st.file_uploader("📥 Import CSV", type=["csv"])
 
 # LOAD CSV
 if uploaded_file:
@@ -47,17 +42,6 @@ if uploaded_file:
 else:
     df = pd.DataFrame(columns=COLUMNS.keys())
     st.warning("⚠️ No data imported yet. You’re starting with a blank database.")
-
-# EXPORT HANDLER (after df is loaded)
-export_buffer = io.StringIO()
-df.to_csv(export_buffer, index=False)
-with col2:
-    st.download_button(
-        label="📤 Export CSV",
-        data=export_buffer.getvalue(),
-        file_name="farm_data.csv",
-        mime="text/csv"
-    )
 
 # NEW ENTRY FORM
 st.subheader("➕ Add or Update Record")
@@ -206,3 +190,14 @@ if st.button("📊 Generate Charts"):
             st.line_chart(filtered_df.groupby("Planting Date")["TDS (ppm)"].mean())
     else:
         st.info("No data available for charting.")
+
+# ✅ EXPORT BUTTON (NOW AT THE BOTTOM)
+st.subheader("📤 Export Data")
+export_buffer = io.StringIO()
+df.to_csv(export_buffer, index=False)
+st.download_button(
+    label="Download Full CSV",
+    data=export_buffer.getvalue(),
+    file_name="farm_data.csv",
+    mime="text/csv"
+)
