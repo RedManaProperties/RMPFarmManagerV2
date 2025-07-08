@@ -177,12 +177,14 @@ if st.button("📊 Generate Charts"):
 st.subheader("📤 Export Data")
 export_buffer = io.StringIO()
 df.to_csv(export_buffer, index=False)
-st.download_button(
+
+export_clicked = st.download_button(
     label="Download Full CSV",
     data=export_buffer.getvalue(),
     file_name="farm_data.csv",
     mime="text/csv"
 )
 
-st.warning("✅ Your data has been exported. Please reload the page to start a new session and re-import your file to continue.")
-st.stop()
+if export_clicked:
+    st.warning("✅ Your data has been exported. Please reload the page to start a new session and re-import your file to continue.")
+    st.stop()
