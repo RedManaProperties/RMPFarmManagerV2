@@ -25,7 +25,7 @@ COLUMNS = {
 GROWTH_STAGES = ["Seed", "Sprout", "Vegetative", "Flowering", "Harvest"]
 STATUS_OPTIONS = ["Active", "Historical"]
 
-uploaded_file = st.file_uploader("📥 Import CSV", type=["csv"])
+uploaded_file = st.file_uploader("📅 Import CSV", type=["csv"])
 
 if uploaded_file and "last_uploaded" not in st.session_state:
     df = pd.read_csv(uploaded_file)
@@ -47,24 +47,26 @@ else:
 st.subheader("➕ Add or Update Record")
 
 existing_locations = sorted(df["Location"].dropna().unique())
-location = st.text_input("Location", placeholder="Type new or match existing")
-if location:
-    suggestions = [loc for loc in existing_locations if loc.lower().startswith(location.lower())]
-    if suggestions:
-        st.markdown("**Suggestions:** " + ", ".join(suggestions))
+existing_crops = sorted(df["Crop"].dropna().unique())
 
-if location and location in existing_locations:
-    filtered_by_location = df[df["Location"] == location]
+entry_mode = st.radio("Select Entry Mode", ["New Crop", "Existing Crop"])
+
+if entry_mode == "New Crop":
+    location = st.text_input("Location", placeholder="Type new or match existing")
+    if location:
+        suggestions = [loc for loc in existing_locations if loc.lower().startswith(location.lower())]
+        if suggestions:
+            st.markdown("**Suggestions:** " + ", ".join(suggestions))
+
+    crop = st.text_input("Crop", placeholder="Type new or match existing")
+    if crop:
+        crop_suggestions = [c for c in existing_crops if c.lower().startswith(crop.lower())]
+        if crop_suggestions:
+            st.markdown("**Suggestions:** " + ", ".join(crop_suggestions))
 else:
-    filtered_by_location = df
-
-existing_crops = sorted(filtered_by_location["Crop"].dropna().unique())
-
-crop = st.text_input("Crop", placeholder="Type new or match existing")
-if crop:
-    crop_suggestions = [c for c in existing_crops if c.lower().startswith(crop.lower())]
-    if crop_suggestions:
-        st.markdown("**Suggestions:** " + ", ".join(crop_suggestions))
+    crop = st.selectbox("Select Existing Crop", existing_crops)
+    filtered_by_crop = df[df["Crop"] == crop]
+    location = st.selectbox("Select Location for Crop", sorted(filtered_by_crop["Location"].dropna().unique()))
 
 prefill = {}
 if location and crop:
