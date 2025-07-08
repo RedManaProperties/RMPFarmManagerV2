@@ -28,16 +28,13 @@ STATUS_OPTIONS = ["Active", "Historical"]
 uploaded_file = st.file_uploader("\U0001F4E5 Import CSV", type=["csv"])
 
 if uploaded_file:
-        df = pd.read_csv(uploaded_file)
-        if set(COLUMNS.keys()).issubset(df.columns):
-            df = df[list(COLUMNS.keys())].astype(COLUMNS)
-            st.success("\u2705 Imported data loaded.")
-        else:
-            st.warning("\u26A0\uFE0F Uploaded file is missing required columns. Starting blank.")
-            df = pd.DataFrame(columns=COLUMNS.keys())
+    df = pd.read_csv(uploaded_file)
+    if set(COLUMNS.keys()).issubset(df.columns):
+        df = df[list(COLUMNS.keys())].astype(COLUMNS)
+        st.success("✅ Imported data loaded.")
     else:
+        st.warning("⚠️ Uploaded file is missing required columns. Starting blank.")
         df = pd.DataFrame(columns=COLUMNS.keys())
-        st.warning("\u26A0\uFE0F No data imported yet. You’re starting with a blank database.")
     st.session_state.df = df
 elif "df" in st.session_state:
     df = st.session_state.df
