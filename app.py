@@ -27,7 +27,7 @@ STATUS_OPTIONS = ["Active", "Historical"]
 
 uploaded_file = st.file_uploader("📥 Import CSV", type=["csv"])
 
-if uploaded_file:
+if uploaded_file and "last_uploaded" not in st.session_state:
     df = pd.read_csv(uploaded_file)
     if set(COLUMNS.keys()).issubset(df.columns):
         df = df[list(COLUMNS.keys())].astype(COLUMNS)
@@ -36,6 +36,7 @@ if uploaded_file:
         st.warning("⚠️ Uploaded file is missing required columns. Starting blank.")
         df = pd.DataFrame(columns=COLUMNS.keys())
     st.session_state.df = df
+    st.session_state.last_uploaded = uploaded_file.name
 elif "df" in st.session_state:
     df = st.session_state.df
 else:
