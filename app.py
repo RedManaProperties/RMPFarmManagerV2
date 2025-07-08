@@ -27,8 +27,7 @@ STATUS_OPTIONS = ["Active", "Historical"]
 
 uploaded_file = st.file_uploader("\U0001F4E5 Import CSV", type=["csv"])
 
-if "df" not in st.session_state:
-    if uploaded_file:
+if uploaded_file:
         df = pd.read_csv(uploaded_file)
         if set(COLUMNS.keys()).issubset(df.columns):
             df = df[list(COLUMNS.keys())].astype(COLUMNS)
@@ -40,8 +39,11 @@ if "df" not in st.session_state:
         df = pd.DataFrame(columns=COLUMNS.keys())
         st.warning("\u26A0\uFE0F No data imported yet. You’re starting with a blank database.")
     st.session_state.df = df
-else:
+elif "df" in st.session_state:
     df = st.session_state.df
+else:
+    df = pd.DataFrame(columns=COLUMNS.keys())
+    st.warning("⚠️ No data imported yet. You’re starting with a blank database.")
 
 st.subheader("\u2795 Add or Update Record")
 
