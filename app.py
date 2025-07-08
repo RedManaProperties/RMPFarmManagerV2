@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import matplotlib.pyplot as plt
 import io
 from datetime import datetime
 
@@ -27,10 +28,9 @@ COLUMNS = {
 GROWTH_STAGES = ["Seed", "Sprout", "Vegetative", "Flowering", "Harvest"]
 STATUS_OPTIONS = ["Active", "Historical"]
 
-# IMPORT BUTTON
+# IMPORT
 uploaded_file = st.file_uploader("📥 Import CSV", type=["csv"])
 
-# LOAD CSV
 if uploaded_file:
     df = pd.read_csv(uploaded_file)
     if set(COLUMNS.keys()).issubset(df.columns):
@@ -122,7 +122,7 @@ if submitted:
     df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
     st.success("✅ Entry added. Historical record preserved.")
 
-# FILTER CONTROLS
+# FILTERS
 st.subheader("🔍 Filter Records")
 
 with st.expander("Filter Options", expanded=True):
@@ -154,7 +154,7 @@ filtered_df = filtered_df[
     (filtered_df["TDS (ppm)"] <= max_tds)
 ]
 
-# DISPLAY FILTERED TABLE
+# DISPLAY FILTERED DATA
 st.subheader("📄 Filtered Records")
 st.dataframe(filtered_df, use_container_width=True)
 
@@ -174,7 +174,11 @@ if st.button("📊 Generate Charts"):
         st.bar_chart(filtered_df.groupby("Location")["Crop"].nunique())
 
         st.markdown("**🌱 Growth Stage Distribution**")
-        st.pyplot(filtered_df["Growth Stage"].value_counts().plot.pie(autopct="%1.1f%%", ylabel="", figsize=(5, 5)).figure)
+        fig, ax = plt.subplots()
+        filtered_df["Growth Stage"].value_counts().plot.pie(
+            autopct="%1.1f%%", ylabel="", figsize=(5, 5), ax=ax
+        )
+        st.pyplot(fig)
 
         st.markdown("**🧪 Average pH per Location**")
         st.bar_chart(filtered_df.groupby("Location")["pH"].mean())
@@ -191,7 +195,7 @@ if st.button("📊 Generate Charts"):
     else:
         st.info("No data available for charting.")
 
-# ✅ EXPORT BUTTON (NOW AT THE BOTTOM)
+# EXPORT BUTTON (BOTTOM)
 st.subheader("📤 Export Data")
 export_buffer = io.StringIO()
 df.to_csv(export_buffer, index=False)
