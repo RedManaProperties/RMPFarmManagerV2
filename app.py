@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
 import io
 from datetime import datetime
 
@@ -173,12 +172,8 @@ if st.button("📊 Generate Charts"):
         st.markdown("**🌽 Crop Variety per Location**")
         st.bar_chart(filtered_df.groupby("Location")["Crop"].nunique())
 
-        st.markdown("**🌱 Growth Stage Distribution**")
-        fig, ax = plt.subplots()
-        filtered_df["Growth Stage"].value_counts().plot.pie(
-            autopct="%1.1f%%", ylabel="", figsize=(5, 5), ax=ax
-        )
-        st.pyplot(fig)
+        st.markdown("**🌱 Growth Stage Distribution (Bar Chart)**")
+        st.bar_chart(filtered_df["Growth Stage"].value_counts())
 
         st.markdown("**🧪 Average pH per Location**")
         st.bar_chart(filtered_df.groupby("Location")["pH"].mean())
@@ -195,7 +190,7 @@ if st.button("📊 Generate Charts"):
     else:
         st.info("No data available for charting.")
 
-# EXPORT BUTTON (BOTTOM)
+# EXPORT
 st.subheader("📤 Export Data")
 export_buffer = io.StringIO()
 df.to_csv(export_buffer, index=False)
