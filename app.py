@@ -32,7 +32,6 @@ col1, col2 = st.columns(2)
 with col1:
     uploaded_file = st.file_uploader("📥 Import CSV", type=["csv"])
 with col2:
-    st.markdown("⬇️ Click below to export all data")
     csv_export_buffer = io.StringIO()
 
 # LOAD CSV
@@ -52,11 +51,20 @@ else:
 st.subheader("➕ Add or Update Record")
 
 existing_locations = sorted(df["Location"].dropna().unique())
-location = st.selectbox("Location", options=[""] + existing_locations, placeholder="Type to search or enter new")
+location = st.text_input("Location", placeholder="Type new or match existing")
+if location:
+    matching_locations = [loc for loc in existing_locations if loc.lower().startswith(location.lower())]
+    if matching_locations:
+        st.markdown("**Suggestions:** " + ", ".join(matching_locations))
 
 filtered_by_location = df[df["Location"] == location] if location else df
 existing_crops = sorted(filtered_by_location["Crop"].dropna().unique())
-crop = st.selectbox("Crop", options=[""] + existing_crops, placeholder="Type to search or enter new")
+
+crop = st.text_input("Crop", placeholder="Type new or match existing")
+if crop:
+    matching_crops = [c for c in existing_crops if c.lower().startswith(crop.lower())]
+    if matching_crops:
+        st.markdown("**Suggestions:** " + ", ".join(matching_crops))
 
 # LOAD LAST RECORD FOR PREFILL
 prefill = {}
@@ -108,7 +116,6 @@ if submitted:
         "Status": "Active"
     }
 
-    # Archive older rows
     df.loc[
         (df["Crop"] == crop) &
         (df["Location"] == location) &
